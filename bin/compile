@@ -20,7 +20,7 @@ gopath=.heroku/gopath
 profile_path=.profile.d/go.sh
 
 if ! (which hg >/dev/null && which bzr >/dev/null); then
-  apt-get install mercurial
+  sudo apt-get install mercurial
 fi
 
 if test -d $cache/$ver/go
