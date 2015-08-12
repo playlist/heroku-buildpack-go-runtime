@@ -19,6 +19,14 @@ goroot_path=.heroku/go
 gopath=.heroku/gopath
 profile_path=.profile.d/go.sh
 
+if ! (which hg >/dev/null); then
+  pip install mercurial > /dev/null 2>&1
+fi
+
+if ! (which bzr >/dev/null); then
+  pip install bzr > /dev/null 2>&1
+fi
+
 if test -d $cache/$ver/go
 then
     echo "-----> Using $ver"
