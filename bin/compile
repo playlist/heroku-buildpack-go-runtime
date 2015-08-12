@@ -19,11 +19,13 @@ goroot_path=.heroku/go
 gopath=.heroku/gopath
 profile_path=.profile.d/go.sh
 
-if ! (which hg >/dev/null); then
-  pip install mercurial > /dev/null 2>&1
-fi
+venv=$cache/venv
+python=python2.7
 
-if ! (which bzr >/dev/null); then
+if ! (which hg >/dev/null && which bzr >/dev/null); then
+  virtualenv --python $python --distribute --never-download --prompt='(venv) ' $venv > /dev/null 2>&1
+  . $venv/bin/activate > /dev/null 2>&1
+  pip install mercurial > /dev/null 2>&1
   pip install bzr > /dev/null 2>&1
 fi
 
