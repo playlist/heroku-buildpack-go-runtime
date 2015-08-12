@@ -11,7 +11,7 @@ mkdir -p "$build" "$cache"
 ver=go${GOVERSION:-1.4.2}
 
 file=${GOFILE:-$ver.$(uname|tr A-Z a-z)-amd64.tar.gz}
-url=${GOURL:-http://go.googlecode.com/files/$file}
+url=${GOURL:-https://storage.googleapis.com/golang/$file}
 
 app_base=/app
 
