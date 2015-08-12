@@ -1,15 +1,46 @@
 #!/usr/bin/env bash
 # usage: bin/compile <build-dir> <cache-dir>
 
-set -e
+set -eo pipefail
 
+mkdir -p "$1" "$2"
 build=$(cd "$1/" && pwd)
 cache=$(cd "$2/" && pwd)
+buildpack=$(cd "$(dirname $0)/.." && pwd)
+arch=$(uname -m|tr A-Z a-z)
+if test $arch = x86_64
+then arch=amd64
+fi
+plat=$(uname|tr A-Z a-z)-$arch
 
-mkdir -p "$build" "$cache"
+# Python
+venv=$cache/venv
+mkdir -p $cache/pip
+python=python2.7
+PATH=$buildpack/$plat/bin:$venv/bin:$PATH
+steptxt="----->"
+
+virtualenv() {
+    python "$buildpack/vendor/virtualenv-1.11.6/virtualenv.py" "$@"
+}
+
+warn() {
+    echo >&2 " !     $@"
+}
+
+step() {
+    echo "$steptxt $@"
+}
+
+start() {
+    echo -n "$steptxt $@... "
+}
+
+finished() {
+    echo "done"
+}
 
 ver=go${GOVERSION:-1.4.2}
-
 file=${GOFILE:-$ver.$(uname|tr A-Z a-z)-amd64.tar.gz}
 url=${GOURL:-https://storage.googleapis.com/golang/$file}
 
@@ -19,8 +50,20 @@ goroot_path=.heroku/go
 gopath=.heroku/gopath
 profile_path=.profile.d/go.sh
 
-if ! (which hg >/dev/null && which bzr >/dev/null); then
-  sudo apt-get install mercurial
+if ! (which hg >/dev/null && which bzr >/dev/null)
+then
+    start "Installing Virtualenv"
+        virtualenv --python $python --distribute --never-download --prompt='(venv) ' $venv > /dev/null 2>&1
+        . $venv/bin/activate > /dev/null 2>&1
+    finished
+
+    start "Installing Mercurial"
+        pip install mercurial > /dev/null 2>&1
+    finished
+
+    start "Installing Bazaar"
+        pip install bzr > /dev/null 2>&1
+    finished
 fi
 
 if test -d $cache/$ver/go
@@ -48,3 +91,5 @@ echo "export PATH=\$PATH:$app_base/$goroot_path/bin" >> $build/$profile_path
 
 echo "export GOPATH=$app_base/$gopath" >> $build/$profile_path
 echo "export PATH=\$PATH:$app_base/$gopath/bin" >> $build/$profile_path
+
+cp $buildpack/vendor/concurrency.sh $build/.profile.d/
