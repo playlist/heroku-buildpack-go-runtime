@@ -52,11 +52,6 @@ profile_path=.profile.d/go.sh
 
 if ! (which hg >/dev/null && which bzr >/dev/null)
 then
-    start "Installing Virtualenv"
-        virtualenv --python $python --distribute --never-download --prompt='(venv) ' $venv > /dev/null 2>&1
-        . $venv/bin/activate > /dev/null 2>&1
-    finished
-
     start "Installing Mercurial"
         pip install mercurial > /dev/null 2>&1
     finished
