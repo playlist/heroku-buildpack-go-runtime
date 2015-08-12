@@ -23,10 +23,10 @@ venv=$cache/venv
 python=python2.7
 
 if ! (which hg >/dev/null && which bzr >/dev/null); then
-  virtualenv --python $python --distribute --never-download --prompt='(venv) ' $venv > /dev/null 2>&1
-  . $venv/bin/activate > /dev/null 2>&1
-  pip install mercurial > /dev/null 2>&1
-  pip install bzr > /dev/null 2>&1
+  virtualenv --python $python --distribute --never-download --prompt='(venv) ' $venv # > /dev/null 2>&1
+  . $venv/bin/activate # > /dev/null 2>&1
+  pip install mercurial # > /dev/null 2>&1
+  pip install bzr # > /dev/null 2>&1
 fi
 
 if test -d $cache/$ver/go
