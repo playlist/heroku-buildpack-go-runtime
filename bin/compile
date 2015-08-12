@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+# usage: bin/compile <build-dir> <cache-dir>
+
+set -e
+
+build=$(cd "$1/" && pwd)
+cache=$(cd "$2/" && pwd)
+
+mkdir -p "$build" "$cache"
+
+ver=go${GOVERSION:-1.4.2}
+
+file=${GOFILE:-$ver.$(uname|tr A-Z a-z)-amd64.tar.gz}
+url=${GOURL:-http://go.googlecode.com/files/$file}
+
+app_base=/app
+
+goroot_path=.heroku/go
+gopath=.heroku/gopath
+profile_path=.profile.d/go.sh
+
+if test -d $cache/$ver/go
+then
+    echo "-----> Using $ver"
+else
+    rm -rf $cache/* # be sure not to build up cruft
+    mkdir -p $cache/$ver
+    cd $cache/$ver
+    echo -n "-----> Installing $ver..."
+    curl -sO $url
+    tar zxf $file
+    rm -f $file
+    echo " done"
+fi
+
+mkdir -p $build/$goroot_path
+mkdir -p $build/$gopath
+mkdir -p $(dirname $build/$profile_path)
+
+cp -r $cache/$ver/go/* $build/$goroot_path
+
+echo "export GOROOT=$app_base/$goroot_path" >> $build/$profile_path
+echo "export PATH=\$PATH:$app_base/$goroot_path/bin" >> $build/$profile_path
+
+echo "export GOPATH=$app_base/$gopath" >> $build/$profile_path
+echo "export PATH=\$PATH:$app_base/$gopath/bin" >> $build/$profile_path
